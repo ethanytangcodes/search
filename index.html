@@ -13,7 +13,6 @@
   --accent: #7289da;
   --text: #eef2ff;
   --muted: #a0acc8;
-  --glass: rgba(255, 255, 255, 0.05);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -29,10 +28,7 @@ body { height: 100vh; background: radial-gradient(circle at top left, #1e1f2b, #
   width: 80px; height: 80px; border: 6px solid transparent; border-top: 6px solid #7289da; border-radius: 50%; animation: spin 1.2s linear infinite; margin-bottom:20px; box-shadow: 0 0 15px #7289da;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
+@keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
 
 #progressContainer { width: 300px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow:hidden; margin-top: 10px; }
 #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg,#7289da,#5865f2); transition: width 0.2s linear; }
@@ -50,18 +46,20 @@ body { height: 100vh; background: radial-gradient(circle at top left, #1e1f2b, #
   box-shadow: 0 25px 70px rgba(0,0,0,0.55);
   animation: fadeIn 1s ease-out;
   display: none;
+  transition: transform 0.3s ease;
 }
+
+.container.zoom { transform: scale(1.08); }
 
 @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 
 h1 { font-size:2.2rem; margin-bottom:0.5rem; background: linear-gradient(90deg,#7289da,#5865f2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.greeting { font-size:1.4rem; color:#c9c9e3; margin-bottom:1rem; }
+.greeting { font-size:1.4rem; color:#c9c9e3; margin-bottom:1rem; min-height:1.6rem; } /* keep space for typing effect */
 .clock { color:#a8a8cf; font-size:1.1rem; margin-bottom:1.8rem; }
 
 .search-box { display:flex; width:100%; background: rgba(255,255,255,0.1); border-radius:14px; overflow:hidden; transition: all 0.3s ease; border:1px solid rgba(255,255,255,0.05);}
-.search-box:focus-within { box-shadow: 0 0 25px rgba(114,137,218,0.5); transform: scale(1.02);}
-input { flex:1; border:none; padding:1rem 1.2rem; font-size:1rem; color:white; background:transparent; outline:none; }
-button { background: linear-gradient(135deg,#5865f2,#4752c4); border:none; color:white; padding:1rem 1.5rem; font-weight:600; cursor:pointer; transition:0.3s; }
+input { flex:1; border:none; padding:1rem 1.2rem; font-size:1rem; color:white; background:transparent; outline:none;}
+button { background: linear-gradient(135deg,#5865f2,#4752c4); border:none; color:white; padding:1rem 1.5rem; font-weight:600; cursor:pointer; transition:0.3s;}
 button:hover { background: linear-gradient(135deg,#7289da,#5865f2); transform:scale(1.05); }
 
 .controls { margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;}
@@ -75,7 +73,7 @@ select:hover { background: rgba(255,255,255,0.25);}
 .clear-btn { margin-top:0.6rem; background: rgba(240,71,71,0.25); border:none; color:#f87171; padding:0.5rem 1rem; border-radius:12px; font-size:0.9rem; cursor:pointer; transition:0.25s; }
 .clear-btn:hover { background: rgba(240,71,71,0.4); }
 
-#historyBtn { border-radius: 50px; } /* Rounded history button */
+#historyBtn { border-radius: 50px; }
 </style>
 </head>
 <body>
@@ -89,10 +87,10 @@ select:hover { background: rgba(255,255,255,0.25);}
 
 <div class="container" id="portalContainer">
   <h1>Ethan’s Browser Portal 🌐</h1>
-  <div class="greeting" id="greeting">Welcome!</div>
+  <div class="greeting" id="greeting"></div>
   <div class="clock" id="clock"></div>
 
-  <div class="search-box">
+  <div class="search-box" id="searchBox">
     <input type="text" id="query" placeholder="Search privately..." />
     <button id="searchBtn">Go</button>
   </div>
@@ -117,12 +115,12 @@ tsParticles.load("tsparticles", {
   fpsLimit:60,
   background:{color:"transparent"},
   particles:{
-    number:{value:120, density:{enable:true, area:900}},
+    number:{value:160, density:{enable:true, area:900}},
     color:{value:["#5865f2","#7289da","#99aaff"]},
     shape:{type:"circle"},
     opacity:{value:0.6, random:true},
     size:{value:{min:2,max:5}, random:true},
-    move:{enable:true, speed:1.2, direction:"none", random:true, outModes:"out"},
+    move:{enable:true, speed:2.5, direction:"none", random:true, outModes:"out"},
     links:{enable:true, distance:120, color:"#7289da", opacity:0.25, width:1}
   },
   interactivity:{ events:{ onHover:{enable:true,mode:"grab"}, onClick:{enable:true,mode:"repulse"} }, modes:{ grab:{distance:150, links:{opacity:0.6}}, repulse:{distance:120,duration:0.4} } },
@@ -136,17 +134,13 @@ const portalContainer = document.getElementById("portalContainer");
 
 let progress = 0;
 function fakeLoad() {
-  let delay = 67;
-  if(progress===66) delay=670; // long pause only at 67%
+  let delay = 41;
+  if(progress===66) delay=670;
   progress++;
   progressBar.style.width = progress + "%";
   loadingText.textContent = `Loading ${progress}%`;
-  if(progress<100){
-    setTimeout(fakeLoad, delay);
-  } else {
-    loadingScreen.style.display="none";
-    portalContainer.style.display="block";
-  }
+  if(progress<100){ setTimeout(fakeLoad, delay); }
+  else { loadingScreen.style.display="none"; portalContainer.style.display="block"; startGreetingTyping(); }
 }
 fakeLoad();
 
@@ -157,11 +151,8 @@ function updateClock() {
   const date = now.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
   clock.textContent = `${date} • ${time}`;
 }
-setInterval(updateClock, 1000);
+setInterval(updateClock,1000);
 updateClock();
-
-const greetings = ["Welcome!","Hello!","Good to see you!","Howdy!","Hey there!","Greetings!"];
-document.getElementById("greeting").textContent = greetings[Math.floor(Math.random()*greetings.length)];
 
 const searchBtn = document.getElementById("searchBtn");
 const queryInput = document.getElementById("query");
@@ -169,6 +160,14 @@ const engineSelect = document.getElementById("engineSelect");
 const historyBtn = document.getElementById("historyBtn");
 const historyList = document.getElementById("historyList");
 const clearHistoryBtn = document.getElementById("clearHistory");
+const searchBox = document.getElementById("searchBox");
+
+queryInput.addEventListener("input", ()=>{
+  portalContainer.classList.add("zoom");
+});
+queryInput.addEventListener("blur", ()=>{
+  portalContainer.classList.remove("zoom");
+});
 
 let history = JSON.parse(localStorage.getItem("searchHistory") || "[]");
 function renderHistory() {
@@ -201,9 +200,24 @@ historyBtn.onclick=()=>{
   if(!showing) renderHistory();
 };
 
-clearHistoryBtn.onclick=()=>{
-  if(confirm("Clear all search history?")){history=[]; localStorage.removeItem("searchHistory"); renderHistory();}
-};
+clearHistoryBtn.onclick=()=>{ if(confirm("Clear all search history?")){history=[]; localStorage.removeItem("searchHistory"); renderHistory();} };
+
+// Greeting typing effect
+function startGreetingTyping() {
+  const greetings = ["i see how it is","no cap skibidi fr","killing time in class?","MEGAKNIGHT","...","good night","nobody asked","shhh","made by ethan"];
+  const greetingText = greetings[Math.floor(Math.random()*greetings.length)];
+  const greetingEl = document.getElementById("greeting");
+  greetingEl.textContent = "";
+  let i = 0;
+  function typeLetter() {
+    if(i < greetingText.length){
+      greetingEl.textContent += greetingText[i];
+      i++;
+      setTimeout(typeLetter, 120);
+    }
+  }
+  typeLetter();
+}
 </script>
 </body>
 </html>
